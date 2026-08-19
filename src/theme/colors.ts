@@ -5,6 +5,7 @@ const colors = {
   activeColor: "#3FC1C9",
   inactiveColor: 'rgba(245,245,245,0.6)',  
   buttonColor: "#3FC1C9",
+  movieBackgroundColor: "#3FC1C9"
 };
 
 export default colors;

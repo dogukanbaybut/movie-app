@@ -1,39 +1,105 @@
-import { Pressable, StyleSheet, TextInput, View, Text } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import colors from '../theme/colors'
-import { s } from 'react-native-size-matters'
-import { useState } from 'react'
-import searchMovies from '../api/omdb'
+import {
+    ActivityIndicator,
+    FlatList,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import colors from "../theme/colors";
+import { s, vs } from "react-native-size-matters";
+import { useState } from "react";
+import searchMovies, { OmdbSearchItem } from "../api/omdb";
+import MovieCard from "../components/MovieCard";
 
 const HomeScreen = () => {
-    const [searchQuery, setSearchQuery] = useState("Batman")
+    const [query, setQuery] = useState("Batman");
+    const [movies, setMovies] = useState<OmdbSearchItem[]>([]);
 
-    const onSubmit = () => {
-        searchMovies(searchQuery)
+    const [loader, setLoader] = useState(false);
+    const [error, setError] = useState("");
+
+    const onSubmit = async () => {
+        setLoader(true);
+        setError("");
+
+        try {
+            const res = await searchMovies(query);
+            if (res.Response === "True") {
+                const incomingMovies = res.Search || [];
+                setMovies(incomingMovies);
+            } else {
+                setMovies([]);
+                setError(res.Error || "No movies found");
+            }
+        } catch {
+            setError("Something went wrong");
+            setMovies([]);
+        }
+
+        setLoader(false);
     };
 
     return (
         <SafeAreaView style={styles.container} edges={[]}>
             <View style={styles.searchContainer}>
                 <TextInput
+                    value={query}
+                    onChangeText={setQuery}
                     style={styles.searchInput}
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                    placeholder="Search movies..."
+                    placeholder="Search (e.g., batman)"
                     placeholderTextColor={colors.inactiveColor}
                     returnKeyType="search"
+                    onSubmitEditing={onSubmit}
                 />
                 <Pressable onPress={onSubmit} style={styles.searchButton}>
                     <Text style={styles.searchButtonText}>Search</Text>
                 </Pressable>
             </View>
 
-        </SafeAreaView >
+            {loader ? (
+                <View
+                    style={{
+                        flex: 1,
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}
+                >
+                    <ActivityIndicator size={"large"} />
+                    <Text
+                        style={{
+                            color: colors.textColor,
+                            marginTop: vs(4),
+                            textAlign: "center",
+                        }}
+                    >
+                        Loading
+                    </Text>
+                </View>
+            ) : error ? (
+                <View
+                    style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+                >
+                    <Text style={{ color: colors.textColor, fontSize: s(14) }}>
+                        {error}
+                    </Text>
+                </View>
+            ) : (
+                <FlatList
+                    data={movies}
+                    renderItem={({ item }) => <MovieCard movie={item} />}
+                    keyExtractor={(item, index) => `${item.imdbID}-${index}`}
+                    key={`movies-${movies.length}`}
+                    numColumns={2}
+                />
+            )}
+        </SafeAreaView>
+    );
+};
 
-    )
-}
-
-export default HomeScreen
+export default HomeScreen;
 
 const styles = StyleSheet.create({
     container: {
@@ -43,7 +109,6 @@ const styles = StyleSheet.create({
     searchContainer: {
         flexDirection: 'row',
         gap: s(10),
-
         padding: s(12),
     },
     searchInput: {
