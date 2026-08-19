@@ -11,7 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import colors from "../theme/colors";
 import { s, vs } from "react-native-size-matters";
 import { useEffect, useState } from "react";
-import searchMovies, { OmdbSearchItem } from "../api/omdb";
+import { OmdbSearchItem, searchMovies } from "../api/omdb";
 import MovieCard from "../components/MovieCard";
 
 const HomeScreen = () => {
