@@ -23,6 +23,7 @@ function MainStackNavigator() {
                         headerStyle: { backgroundColor: colors.backgroundColor, },
                         headerTitleStyle: { color: colors.textColor, fontSize: s(20) },
                         headerTintColor: colors.textColor,
+                        headerBackButtonDisplayMode: 'minimal',
                         title: 'Details',
                     }
                 }
