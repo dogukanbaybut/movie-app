@@ -1,4 +1,4 @@
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,12 +7,15 @@ import { s, vs } from 'react-native-size-matters';
 import { getMovieDetails, OmdbDetails } from '../api/omdb';
 import colors from '../theme/colors';
 import CustomLoading from '../components/CustomLoading';
+import { isMovieSaved, toggleSavedMovie } from '../storage/saved';
 
 const DetailsScreen = () => {
     const { params } = useRoute<any>();
     const [movie, setMovie] = useState<OmdbDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [saved, setSaved] = useState(false);
+    const [savingInProgress, setSavingInProgress] = useState(false);
 
     useEffect(() => {
         let isMounted = true;
@@ -43,6 +46,36 @@ const DetailsScreen = () => {
             isMounted = false;
         };
     }, [params.movieimdbID]);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        isMovieSaved(params.movieimdbID).then((result) => {
+            if (isMounted) setSaved(result);
+        });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [params.movieimdbID]);
+
+    const onToggleSave = async () => {
+        if (!movie || savingInProgress) return;
+
+        setSavingInProgress(true);
+        try {
+            const { saved: nowSaved } = await toggleSavedMovie({
+                imdbID: movie.imdbID,
+                Title: movie.Title,
+                Year: movie.Year,
+                Type: movie.Type,
+                Poster: movie.Poster,
+            });
+            setSaved(nowSaved);
+        } finally {
+            setSavingInProgress(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -137,6 +170,21 @@ const DetailsScreen = () => {
                         <Text style={styles.sectionText}>{movie.Awards}</Text>
                     </View>
                 )}
+
+                <Pressable
+                    onPress={onToggleSave}
+                    disabled={savingInProgress}
+                    style={[styles.saveButton, saved && styles.saveButtonActive]}
+                >
+                    <Ionicons
+                        name={saved ? 'bookmark' : 'bookmark-outline'}
+                        size={s(18)}
+                        color={saved ? colors.backgroundColor : colors.activeColor}
+                    />
+                    <Text style={[styles.saveButtonText, saved && styles.saveButtonTextActive]}>
+                        {saved ? 'Saved' : 'Save'}
+                    </Text>
+                </Pressable>
             </ScrollView>
         </SafeAreaView>
     )
@@ -243,5 +291,27 @@ const styles = StyleSheet.create({
         color: colors.textColor,
         fontSize: s(13),
         lineHeight: s(19),
+    },
+    saveButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: s(8),
+        marginTop: vs(24),
+        borderWidth: s(1),
+        borderColor: colors.activeColor,
+        borderRadius: s(10),
+        paddingVertical: vs(12),
+    },
+    saveButtonActive: {
+        backgroundColor: colors.activeColor,
+    },
+    saveButtonText: {
+        color: colors.activeColor,
+        fontSize: s(14),
+        fontWeight: '700',
+    },
+    saveButtonTextActive: {
+        color: colors.backgroundColor,
     },
 })
