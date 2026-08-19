@@ -11,32 +11,36 @@ function MyTabs() {
         <Tab.Navigator
             screenOptions={{
                 headerStyle: { backgroundColor: colors.backgroundColor, },
-                headerTitleStyle: { color: colors.textColor, fontSize: s(20) },
+                headerTitleStyle: { color: colors.textColor, fontSize: s(24) },
                 headerTintColor: colors.textColor,
-                tabBarStyle: { backgroundColor: colors.backgroundColor, height: s(60), borderTopColor: colors.borderColor },
+                tabBarStyle: { backgroundColor: colors.backgroundColor, height: s(65), borderTopColor: colors.borderColor },
                 tabBarActiveTintColor: colors.activeColor,
                 tabBarInactiveTintColor: colors.inactiveColor,
+                tabBarLabelStyle: { fontSize: s(10), fontWeight: 'bold' },
                 tabBarIcon: ({ color, size, focused }) => null
             }
             }>
             <Tab.Screen
                 options={{
+                    title: 'Home',
                     tabBarIcon: ({ color }) => (
-                        <Ionicons name="home" size={s(20)} color={color} />
+                        <Ionicons name="home" size={s(22)} color={color} />
                     ),
                 }}
                 name="HomeScreen" component={HomeScreen} />
             <Tab.Screen
                 options={{
+                    title: 'Categories',
                     tabBarIcon: ({ color }) => (
-                        <Ionicons name="albums" size={s(20)} color={color} />
+                        <Ionicons name="albums" size={s(22)} color={color} />
                     ),
                 }}
                 name="CategoriesScreen" component={HomeScreen} />
             <Tab.Screen
                 options={{
+                    title: 'Saved',
                     tabBarIcon: ({ color }) => (
-                        <Ionicons name="bookmark" size={s(20)} color={color} />
+                        <Ionicons name="bookmark" size={s(22)} color={color} />
                     ),
                 }}
                 name="SavedScreen" component={HomeScreen} />
