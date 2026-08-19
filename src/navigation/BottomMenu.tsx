@@ -3,6 +3,7 @@ import HomeScreen from "../screens/HomeScreen";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { s } from "react-native-size-matters";
 import colors from "../theme/colors";
+import CategoriesScreen from "../screens/CategoriesScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -35,7 +36,7 @@ function MyTabs() {
                         <Ionicons name="albums" size={s(22)} color={color} />
                     ),
                 }}
-                name="CategoriesScreen" component={HomeScreen} />
+                name="CategoriesScreen" component={CategoriesScreen} />
             <Tab.Screen
                 options={{
                     title: 'Saved',

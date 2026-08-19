@@ -11,9 +11,9 @@ export type OmdbSearchItem = {
   Poster: string;
 };
 
-async function searchMovies(query: string) {
+async function searchMovies(query: string, page: number = 1,) {
   try {
-    const url = `${API_BASE}?apikey=${API_KEY}&s=${encodeURIComponent(query)}`;
+    const url = `${API_BASE}?apikey=${API_KEY}&s=${encodeURIComponent(query) }&page=${page}`;
     const response = await fetch(url);
     const data = await response.json();
     console.log(data);
