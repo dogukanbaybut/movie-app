@@ -1,3 +1,4 @@
+// CategoriesScreen'deki sekmeler. query, OMDb aramasında kullanılan arama terimi.
 const CATEGORIES = [
     {key: 'popular', title: 'Popular', query: "marvel"},
     {key: 'action', title: 'Action', query: "action"},

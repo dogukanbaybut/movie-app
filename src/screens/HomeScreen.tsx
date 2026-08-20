@@ -14,17 +14,20 @@ import { useEffect, useState } from "react";
 import { OmdbSearchItem, searchMovies } from "../api/omdb";
 import MovieCard from "../components/MovieCard";
 
+// Ana ekran: arama kutusu + sonuçların listelendiği (sayfalanmış) grid
 const HomeScreen = () => {
-    const [query, setQuery] = useState("Batman");
-    const [movies, setMovies] = useState<OmdbSearchItem[]>([]);
+    const [query, setQuery] = useState("Batman"); // arama kutusundaki yazı
+    const [movies, setMovies] = useState<OmdbSearchItem[]>([]); // ekranda gösterilecek filmler
 
-    const [loader, setLoader] = useState(false);
-    const [error, setError] = useState("");
+    const [loader, setLoader] = useState(false); // ilk aramada tam ekran loading göster
+    const [error, setError] = useState(""); // sonuç yoksa / hata varsa mesaj
 
+    // Sonsuz kaydırma (infinite scroll) için sayfalama state'leri
     const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true); // daha fazla sayfa var mı
+    const [loadingMore, setLoadingMore] = useState(false); // liste altında küçük loading
 
+    // isNewSearch=true ise yeni arama (listeyi sıfırla), false ise mevcut listeye ekle (sayfalama)
     const fetchMovies = async (pageNum: number, isNewSearch = false) => {
         if (!query) {
             setMovies([]);
@@ -41,12 +44,12 @@ const HomeScreen = () => {
             if (res.Response === "True") {
                 const incomingMovies = res.Search || [];
 
+                // OMDb her sayfada 10 sonuç döner; 10'dan azsa son sayfadayız demektir
                 setHasMore(incomingMovies.length === 10);
 
                 setMovies((prev) => {
-                    if (pageNum === 1) return incomingMovies;
-
-                    return [...prev, ...incomingMovies];
+                    if (pageNum === 1) return incomingMovies; // yeni arama: listeyi değiştir
+                    return [...prev, ...incomingMovies]; // sayfalama: listenin sonuna ekle
                 });
             } else {
                 if (pageNum === 1) {
@@ -65,6 +68,7 @@ const HomeScreen = () => {
         }
     };
 
+    // Arama butonuna basılınca / klavyeden "search" e basılınca çalışır
     const onSubmit = () => {
         setPage(1);
         setMovies([]);
@@ -72,8 +76,9 @@ const HomeScreen = () => {
         fetchMovies(1, true);
     };
 
+    // FlatList sona yaklaşınca (onEndReached) tetiklenir, bir sonraki sayfayı çeker
     const loadMore = async () => {
-        if (!hasMore || loader || loadingMore) return;
+        if (!hasMore || loader || loadingMore) return; // zaten yükleniyorsa veya son sayfadaysa çık
 
         setLoadingMore(true);
         const nextPage = page + 1;
@@ -86,6 +91,7 @@ const HomeScreen = () => {
         }
     };
 
+    // useEffect + [] (boş bağımlılık dizisi) = component ilk açıldığında bir kere çalışır
     useEffect(() => {
         onSubmit();
     }, []);
@@ -107,6 +113,7 @@ const HomeScreen = () => {
                 </Pressable>
             </View>
 
+            {/* Üç durumdan sadece biri gösterilir: yükleniyor / hata / sonuç listesi */}
             {loader ? (
                 <View
                     style={{
@@ -139,9 +146,9 @@ const HomeScreen = () => {
                     data={movies}
                     renderItem={({ item }) => <MovieCard movie={item} />}
                     keyExtractor={(item, index) => `${item.imdbID}-${index}`}
-                    numColumns={2}
-                    onEndReached={loadMore}
-                    onEndReachedThreshold={0.3}
+                    numColumns={2} // 2 sütunlu grid görünümü
+                    onEndReached={loadMore} // listenin sonuna gelinince loadMore çalışır
+                    onEndReachedThreshold={0.3} // sona %30 kala tetikle
                     ListFooterComponent={
                         loadingMore ? (
                             <ActivityIndicator color={colors.activeColor} />

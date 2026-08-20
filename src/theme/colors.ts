@@ -1,3 +1,5 @@
+// Uygulamanın tüm renkleri tek yerde toplanıyor. Ekranlar renk kodu yazmak yerine
+// colors.activeColor gibi isimler kullanıyor, böylece tema değişikliği tek dosyadan yapılır.
 const colors = {
   backgroundColor: "#364F6B",
   textColor: "#F5F5F5",

@@ -7,76 +7,76 @@ import { s, vs } from 'react-native-size-matters';
 import { getMovieDetails, OmdbDetails } from '../api/omdb';
 import colors from '../theme/colors';
 import CustomLoading from '../components/CustomLoading';
-import { isMovieSaved, toggleSavedMovie } from '../storage/saved';
+import { isMovieSaved, saveMovie, removeMovie } from '../storage/saved';
 
+// Bir filmin tüm detaylarını gösteren ekran. MovieCard'a tıklanınca buraya geliniyor.
 const DetailsScreen = () => {
+    // Bir önceki ekranın navigate() ile gönderdiği imdbID'yi alıyoruz
     const { params } = useRoute<any>();
+    const movieId = params.movieimdbID;
+
     const [movie, setMovie] = useState<OmdbDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [saved, setSaved] = useState(false);
-    const [savingInProgress, setSavingInProgress] = useState(false);
+    const [saved, setSaved] = useState(false); // bu film "Saved" listesinde mi
+    const [saving, setSaving] = useState(false); // butona art arda basılmasın diye
 
-    useEffect(() => {
-        let isMounted = true;
+    // Filmin detaylarını getirir
+    const fetchMovie = async () => {
+        setLoading(true);
+        setError('');
 
-        const fetchDetails = async () => {
-            setLoading(true);
-            setError('');
-
-            try {
-                const data = await getMovieDetails(params.movieimdbID);
-                if (!isMounted) return;
-
-                if (data && data.Response === 'True') {
-                    setMovie(data);
-                } else {
-                    setError(data?.Error || 'Movie details could not be found');
-                }
-            } catch {
-                if (isMounted) setError('Something went wrong');
-            } finally {
-                if (isMounted) setLoading(false);
-            }
-        };
-
-        fetchDetails();
-
-        return () => {
-            isMounted = false;
-        };
-    }, [params.movieimdbID]);
-
-    useEffect(() => {
-        let isMounted = true;
-
-        isMovieSaved(params.movieimdbID).then((result) => {
-            if (isMounted) setSaved(result);
-        });
-
-        return () => {
-            isMounted = false;
-        };
-    }, [params.movieimdbID]);
-
-    const onToggleSave = async () => {
-        if (!movie || savingInProgress) return;
-
-        setSavingInProgress(true);
         try {
-            const { saved: nowSaved } = await toggleSavedMovie({
+            const data = await getMovieDetails(movieId);
+
+            if (data && data.Response === 'True') {
+                setMovie(data);
+            } else {
+                setError('Film bulunamadı');
+            }
+        } catch {
+            setError('Bir şeyler ters gitti');
+        }
+
+        setLoading(false);
+    };
+
+    // Bu filmin daha önce kaydedilip kaydedilmediğini kontrol eder
+    const checkIfSaved = async () => {
+        const result = await isMovieSaved(movieId);
+        setSaved(result);
+    };
+
+    // Ekran açılınca (ve movieId değişince) ikisini de çalıştır
+    useEffect(() => {
+        fetchMovie();
+        checkIfSaved();
+    }, [movieId]);
+
+    // Save butonuna basılınca çalışır
+    const onToggleSave = async () => {
+        if (!movie) return;
+
+        setSaving(true);
+
+        if (saved) {
+            await removeMovie(movie.imdbID);
+            setSaved(false);
+        } else {
+            await saveMovie({
                 imdbID: movie.imdbID,
                 Title: movie.Title,
                 Year: movie.Year,
                 Type: movie.Type,
                 Poster: movie.Poster,
             });
-            setSaved(nowSaved);
-        } finally {
-            setSavingInProgress(false);
+            setSaved(true);
         }
+
+        setSaving(false);
     };
 
+    // Erken dönüş (early return): yükleniyorsa sadece spinner göster, asıl JSX'e hiç gelme
     if (loading) {
         return (
             <SafeAreaView style={styles.container} edges={[]}>
@@ -85,6 +85,7 @@ const DetailsScreen = () => {
         );
     }
 
+    // Hata varsa veya film gelmediyse hata mesajı göster
     if (error || !movie) {
         return (
             <SafeAreaView style={styles.container} edges={[]}>
@@ -95,6 +96,7 @@ const DetailsScreen = () => {
         );
     }
 
+    // OMDb "Genre" alanını "Action, Comedy" gibi tek string döner, virgülle bölüp diziye çeviriyoruz
     const genres = movie.Genre && movie.Genre !== 'N/A' ? movie.Genre.split(', ') : [];
 
     return (
@@ -125,6 +127,7 @@ const DetailsScreen = () => {
                     )}
                 </View>
 
+                {/* OMDb boş alanlar için "N/A" döner, bu yüzden her yerde !== 'N/A' kontrolü var */}
                 {genres.length > 0 && (
                     <View style={styles.genreRow}>
                         {genres.map((genre) => (
@@ -171,9 +174,10 @@ const DetailsScreen = () => {
                     </View>
                 )}
 
+                {/* saved true ise stil/ikon/metin değişir */}
                 <Pressable
                     onPress={onToggleSave}
-                    disabled={savingInProgress}
+                    disabled={saving}
                     style={[styles.saveButton, saved && styles.saveButtonActive]}
                 >
                     <Ionicons

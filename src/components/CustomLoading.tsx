@@ -3,6 +3,8 @@ import React from "react";
 import colors from "../theme/colors";
 import { vs } from "react-native-size-matters";
 
+// Yüklenme sırasında (API isteği beklerken) gösterilen ortak spinner bileşeni.
+// Birden çok ekranda tekrar kullanılıyor.
 const CustomLoading = () => {
   return (
     <View

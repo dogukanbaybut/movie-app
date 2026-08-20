@@ -1,8 +1,11 @@
 // API: https://www.omdbapi.com/?apikey=9b1460f6&s=Batman`
+// Bu dosya, OMDb film API'sine yapılan tüm ağ isteklerini (fetch) tek yerde topluyor.
+// Ekranlar API'yi doğrudan çağırmak yerine buradaki fonksiyonları kullanıyor.
 
 const API_BASE = "https://www.omdbapi.com/";
 const API_KEY = "9b1460f6";
 
+// Arama sonucunda (?s=...) API'nin döndürdüğü her bir film objesinin şekli
 export type OmdbSearchItem = {
   Title: string;
   Year: string;
@@ -16,6 +19,7 @@ export type OmdbRating = {
   Value: string;
 };
 
+// Tek bir filmin detay bilgisi (?i=...) için dönen objenin şekli
 export type OmdbDetails = {
   Title: string;
   Year: string;
@@ -41,11 +45,12 @@ export type OmdbDetails = {
   Error?: string;
 };
 
+// İsme göre film arar. page parametresi ile sayfalama (her sayfada 10 sonuç) yapılır.
 export async function searchMovies(query: string, page: number = 1,) {
   try {
     const url = `${API_BASE}?apikey=${API_KEY}&s=${encodeURIComponent(query) }&page=${page}`;
-    const response = await fetch(url);
-    const data = await response.json();
+    const response = await fetch(url); // ağ isteği at
+    const data = await response.json(); // gelen JSON'u JS objesine çevir
     console.log(data);
     return data;
   } catch (error) {
@@ -59,6 +64,7 @@ export async function searchMovies(query: string, page: number = 1,) {
 }
 
 
+// imdbID'ye göre tek bir filmin tüm detaylarını getirir (plot=full -> özetin tamamı)
 export async function getMovieDetails(imdbID: string): Promise<OmdbDetails | undefined> {
   try {
     const url = `${API_BASE}?apikey=${API_KEY}&i=${encodeURIComponent(imdbID) }&plot=full`;

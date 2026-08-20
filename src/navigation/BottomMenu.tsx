@@ -6,6 +6,7 @@ import colors from "../theme/colors";
 import CategoriesScreen from "../screens/CategoriesScreen";
 import SavedScreen from "../screens/SavedScreen";
 
+// Bottom tab navigator: ekranın altında sabit duran menü (Home / Categories / Saved)
 const Tab = createBottomTabNavigator();
 
 function MyTabs() {
@@ -16,12 +17,13 @@ function MyTabs() {
                 headerTitleStyle: { color: colors.textColor, fontSize: s(24) },
                 headerTintColor: colors.textColor,
                 tabBarStyle: { backgroundColor: colors.backgroundColor, height: s(65), borderTopColor: colors.borderColor },
-                tabBarActiveTintColor: colors.activeColor,
-                tabBarInactiveTintColor: colors.inactiveColor,
+                tabBarActiveTintColor: colors.activeColor, // seçili sekme rengi
+                tabBarInactiveTintColor: colors.inactiveColor, // diğer sekmelerin rengi
                 tabBarLabelStyle: { fontSize: s(10), fontWeight: 'bold' },
                 tabBarIcon: ({ color, size, focused }) => null
             }
             }>
+            {/* Her Tab.Screen bir sekmeyi temsil eder: name = route adı, component = gösterilecek ekran */}
             <Tab.Screen
                 options={{
                     title: 'Home',

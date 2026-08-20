@@ -8,9 +8,12 @@ import { OmdbSearchItem } from '../api/omdb';
 import { getSavedMovies } from '../storage/saved';
 import MovieCard from '../components/MovieCard';
 
+// Kaydedilen (Save butonuyla işaretlenen) filmlerin listelendiği ekran
 const SavedScreen = () => {
     const [movies, setMovies] = useState<OmdbSearchItem[]>([]);
 
+    // useFocusEffect, useEffect'ten farklı olarak SEKME her odaklandığında (focus) çalışır.
+    // Böylece Details'te bir film kaydedip bu sekmeye dönünce liste otomatik güncellenir.
     useFocusEffect(
         useCallback(() => {
             let isMounted = true;
@@ -27,6 +30,7 @@ const SavedScreen = () => {
 
     return (
         <SafeAreaView style={styles.container} edges={[]}>
+            {/* Kayıtlı film yoksa boş durum mesajı, varsa MovieCard grid'i göster */}
             {movies.length === 0 ? (
                 <View style={styles.centered}>
                     <Text style={styles.emptyText}>You haven't saved any movies yet</Text>

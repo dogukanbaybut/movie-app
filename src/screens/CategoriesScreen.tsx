@@ -10,15 +10,15 @@ import { s } from 'react-native-size-matters';
 
 
 
+// Kategori seçip o kategoriye ait filmleri listeleyen ekran
 const CategoriesScreen = () => {
 
-
-    const [active, setActive] = useState(CATEGORIES[0]);
+    const [active, setActive] = useState(CATEGORIES[0]); // seçili kategori (başlangıçta ilki)
     const [movies, setMovies] = useState<OmdbSearchItem[]>([]);
     const [Loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-
+    // active.query'yi arama terimi olarak kullanıp o kategorinin filmlerini çeker
     const fetchMovies = async () => {
 
         setLoading(true);
@@ -33,6 +33,7 @@ const CategoriesScreen = () => {
             setLoading(false);
         }
     }
+    // [active] bağımlılığı sayesinde kullanıcı farklı bir kategoriye her tıkladığında yeniden çalışır
     useEffect(() => {
         fetchMovies();
     }, [active])
@@ -45,10 +46,11 @@ const CategoriesScreen = () => {
                 contentContainerStyle={styles.categoryScrollContent}
             >
                 {
+                    // Her kategori için tıklanabilir bir "chip" (pill) render ediliyor
                     CATEGORIES.map((c) => (
                         <Pressable
                             key={c.key}
-                            onPress={() => setActive(c)}
+                            onPress={() => setActive(c)} // tıklanınca aktif kategoriyi değiştir
                             style={[
                                 styles.categoryItem,
                                 c.key === active.key && styles.categoryItemActive,

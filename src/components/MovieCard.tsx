@@ -5,9 +5,12 @@ import { s, vs } from 'react-native-size-matters'
 import colors from '../theme/colors'
 import { useNavigation } from '@react-navigation/native'
 
+// Liste halinde (FlatList içinde) tekrar tekrar kullanılan, tek bir filmi gösteren kart.
+// HomeScreen, CategoriesScreen ve SavedScreen bu bileşeni paylaşır (kod tekrarını önler).
 const MovieCard = ({ movie }: { movie: OmdbSearchItem }) => {
-    const navigator = useNavigation<any>();
+    const navigator = useNavigation<any>(); // ekranlar arası geçiş yapmak için hook
     return (
+        // Karta tıklanınca DetailsScreen'e git, hangi filmin açılacağını imdbID ile söyle
         <Pressable onPress={() => navigator.navigate("DetailsScreen", { movieimdbID: movie.imdbID })} style={styles.movieCard}>
             <View style={styles.movieCardDetail}>
                 <Image source={{ uri: movie.Poster }} style={styles.movieCardImage}>
